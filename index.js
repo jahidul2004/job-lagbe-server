@@ -14,7 +14,7 @@ app.use(cors());
 // Routes
 
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.send('Job lagbe server is running');
 })
 
 app.listen(port, () => {
