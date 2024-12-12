@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
@@ -12,7 +12,7 @@ app.use(cors());
 
 // Mongo DB Connection
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.8eefy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -45,6 +45,13 @@ async function run() {
         app.get("/jobs", async (req, res) => {
             const allJobs = await jobs.find({}).toArray();
             res.send(allJobs);
+        });
+
+        // Get a single job with id
+        app.get("/jobs/:id", async (req, res) => {
+            const id = req.params.id;
+            const job = await jobs.findOne({ _id: new ObjectId(id) });
+            res.send(job);
         });
     } finally {
         // Ensures that the client will close when you finish/error
