@@ -44,7 +44,12 @@ async function run() {
 
         // Get all jobs
         app.get("/jobs", async (req, res) => {
-            const allJobs = await jobs.find({}).toArray();
+            const email = req.query.email;
+            let query = {};
+            if (email) {
+                query = { hr_email: email };
+            }
+            const allJobs = await jobs.find(query).toArray();
             res.send(allJobs);
         });
 
@@ -53,6 +58,13 @@ async function run() {
             const id = req.params.id;
             const job = await jobs.findOne({ _id: new ObjectId(id) });
             res.send(job);
+        });
+
+        // Job post api
+        app.post("/jobs", async (req, res) => {
+            const job = req.body;
+            const result = await jobs.insertOne(job);
+            res.send(result);
         });
 
         // Jobs application get,post api
