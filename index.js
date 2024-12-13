@@ -38,6 +38,7 @@ async function run() {
         // Get the database and collection
         const database = client.db("jobLagbe");
         const jobs = database.collection("jobs");
+        const jobApplications = database.collection("jobApplications");
 
         // APIS
 
@@ -52,6 +53,23 @@ async function run() {
             const id = req.params.id;
             const job = await jobs.findOne({ _id: new ObjectId(id) });
             res.send(job);
+        });
+
+        // Jobs application get,post api
+
+        app.get("/job-application", async (req, res) => {
+            const email = req.query.email;
+
+            const query = { applicantEmail: email };
+
+            const result = await jobApplications.find(query).toArray();
+            res.send(result);
+        });
+
+        app.post("/job-application", async (req, res) => {
+            const jobApplication = req.body;
+            const result = await jobApplications.insertOne(jobApplication);
+            res.send(result);
         });
     } finally {
         // Ensures that the client will close when you finish/error
