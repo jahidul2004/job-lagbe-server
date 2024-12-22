@@ -53,6 +53,15 @@ async function run() {
             res.send(allJobs);
         });
 
+        // Get all job applications as a recruiter
+        app.get("/job-applications/jobs/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { jobId: id };
+
+            const result = await jobApplications.find(query).toArray();
+            res.send(result);
+        });
+
         // Get a single job with id
         app.get("/jobs/:id", async (req, res) => {
             const id = req.params.id;
