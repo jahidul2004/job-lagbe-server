@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app = express();
@@ -10,6 +11,7 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 // Mongo DB Connection
 
@@ -47,11 +49,16 @@ async function run() {
         app.post("/jwt", async (req, res) => {
             const user = req.body;
 
-            const token = jwt.sign(user, "secret", {
+            const token = jwt.sign(user, process.env.JWT_SECRET, {
                 expiresIn: "1h",
             });
 
-            res.send(token);
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: false,
+            });
+
+            res.send({ success: true });
         });
 
         // Get all jobs
