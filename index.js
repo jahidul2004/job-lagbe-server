@@ -83,7 +83,7 @@ async function run() {
         });
 
         // Get all jobs
-        app.get("/jobs", verifyToken, async (req, res) => {
+        app.get("/jobs", async (req, res) => {
             const email = req.query.email;
             let query = {};
             if (email) {
