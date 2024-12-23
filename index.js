@@ -10,8 +10,29 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    })
+);
 app.use(cookieParser());
+
+// Middleware to verify token
+const verifyToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).send("Unauthorized");
+    }
+
+    try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verified;
+        next();
+    } catch (error) {
+        return res.status(401).send("Unauthorized");
+    }
+};
 
 // Mongo DB Connection
 
@@ -73,7 +94,7 @@ async function run() {
         });
 
         // Get all job applications as a recruiter
-        app.get("/job-applications/jobs/:id", async (req, res) => {
+        app.get("/job-applications/jobs/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { jobId: id };
 
@@ -97,10 +118,11 @@ async function run() {
 
         // Jobs application get,post api
 
-        app.get("/job-application", async (req, res) => {
+        app.get("/job-application", verifyToken, async (req, res) => {
             const email = req.query.email;
 
             const query = { applicantEmail: email };
+            console.log(req.cookies);
 
             const result = await jobApplications.find(query).toArray();
 
@@ -124,7 +146,7 @@ async function run() {
             res.send(result);
         });
 
-        app.post("/job-application", async (req, res) => {
+        app.post("/job-application", verifyToken, async (req, res) => {
             const jobApplication = req.body;
             const result = await jobApplications.insertOne(jobApplication);
             res.send(result);
